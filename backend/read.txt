@@ -1,0 +1,4 @@
+
+
+cors issue in Node:-
+when we develop api some security region block api
