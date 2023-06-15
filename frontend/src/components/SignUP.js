@@ -5,6 +5,7 @@ const SignUP = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError]=useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,6 +17,11 @@ const SignUP = () => {
 
   const collectData = async () => {
     // e.preventDefault();
+    if(!email || !name || !password){
+      setError(true);
+      return false;
+    }else{
+
     console.log(email, name, password);
     let result = await fetch("http://localhost:5000/signup", {
       method: "post",
@@ -34,6 +40,7 @@ const SignUP = () => {
     if (result) {
       navigate("/");
     }
+  }
   };
   return (
     <div className="signup">
@@ -45,6 +52,7 @@ const SignUP = () => {
         onChange={(e) => setName(e.target.value)}
         placeholder="Enter Name"
       />
+      {error && !name && <span className="error">Enter valid name</span>}
       <input
         className="inputBox"
         type="email"
@@ -52,6 +60,7 @@ const SignUP = () => {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Enter Email"
       />
+      {error && !email && <span className="error">Enter valid email</span>}
       <input
         className="inputBox"
         type="password"
@@ -59,6 +68,7 @@ const SignUP = () => {
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Enter Password"
       />
+      {error && !password && <span className="error">Enter valid password</span>}
       <button onClick={collectData} type="button" id="signupBtn">
         Sign UP
       </button>

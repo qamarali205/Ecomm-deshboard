@@ -60,3 +60,17 @@
   display: block;
   margin-left: 25px;
 }
+
+.product_list{
+  text-align: center;
+  margin-top: 50px;
+}
+.product_list ul li{
+  display: inline-block;
+  border: 1px solid skyblue;
+  padding: 5px;
+  width: 200px;
+}
+.product_list ul{
+  margin: 0;
+}
