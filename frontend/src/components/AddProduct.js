@@ -5,9 +5,31 @@ const AddProduct = () => {
   const [price, setPrice] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [company, setCompany] = React.useState("");
+  const [error, setError]=React.useState(false);
 
-  const addProductHandle=()=>{
+  const addProductHandle=async ()=>{
+    console.log(!name);
+    if(!name || !price || !category || !company){
+      setError(true);
+      return false;
+    }else{
     console.log(name,price,category,company);
+    const userId=JSON.parse(localStorage.getItem('user'))._id;
+    // console.log(userId._id);
+    let result=await fetch("http://localhost:5000/add-product",{
+      method:'post',
+      body:JSON.stringify({name,price,category,company,userId}),
+      headers:{
+        "Content-Type":"application/json"
+      }
+    });
+    result=await result.json();
+    console.log(result);
+    setName('');
+    setPrice('');
+    setCategory('');
+    setCompany('');
+  }
   }
 
   return (
@@ -20,6 +42,7 @@ const AddProduct = () => {
         className="inputBox"
         placeholder="Enter product name"
       />
+      {error && !name && <span className="error">Enter valid name</span>}
       <input
         type="text"
         value={price}
@@ -27,6 +50,7 @@ const AddProduct = () => {
         className="inputBox"
         placeholder="Enter product price"
       />
+      {error && !price && <span className="error">Enter valid price</span>}
       <input
         type="text"
         value={category}
@@ -34,6 +58,7 @@ const AddProduct = () => {
         className="inputBox"
         placeholder="Enter product category"
       />
+      {error && !category && <span className="error">Enter valid category</span>}
       <input
         type="text"
         value={company}
@@ -41,6 +66,7 @@ const AddProduct = () => {
         className="inputBox"
         placeholder="Enter product company"
       />
+      {error && !company && <span className="error">Enter valid company</span>}
 
       <button onClick={addProductHandle} className="addBtn">Add Product</button>
     </div>
