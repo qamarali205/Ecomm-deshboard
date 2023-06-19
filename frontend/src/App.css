@@ -69,8 +69,19 @@
   display: inline-block;
   border: 1px solid skyblue;
   padding: 5px;
-  width: 200px;
+  width: 120px;
 }
 .product_list ul{
   margin: 0;
+}
+
+
+
+/* Media Query */
+
+@media screen and (max-width:768px) {
+  .product_list ul li{
+    width: 80px;
+  }
+  
 }

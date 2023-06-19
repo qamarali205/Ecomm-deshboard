@@ -24,6 +24,9 @@ const AddProduct = () => {
       }
     });
     result=await result.json();
+    if(result){
+      alert('Record add successfully');
+    }
     console.log(result);
     setName('');
     setPrice('');
