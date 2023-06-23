@@ -10,6 +10,8 @@ app.use(express.json());
 
 app.use(cors());
 
+
+//sign up api
 app.post('/signup', async(req,res)=>{
     let user=new User(req.body);
     //data insert in database
@@ -37,12 +39,14 @@ app.post('/login', async(req,res)=>{
    }
 });
 
+// add product api
 app.post('/add-product',async(req,res)=>{
     let product=new Product(req.body);
     let result=await product.save();
     res.send(result);
 })
 
+// all proudct get api
 app.get('/products', async(req,res)=>{
     let product=await Product.find();
     if(product.length>0){
@@ -52,7 +56,7 @@ app.get('/products', async(req,res)=>{
     }
 });
 
-//delete product
+//delete product api
 app.delete('/product/:id',async (req,res)=>{
     
     const result=await Product.deleteOne({_id:req.params.id});
@@ -60,5 +64,16 @@ app.delete('/product/:id',async (req,res)=>{
 
 })
 
+// get single product api
+
+app.get('/product/:id', async(req,res)=>{
+    let result=await Product.findById({_id:req.params.id});
+    if(result){
+        res.send(result);
+    }else{
+        res.send("No Record Found.")
+    }
+
+})
 
 app.listen(5000);
