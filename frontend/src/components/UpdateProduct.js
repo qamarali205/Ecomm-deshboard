@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {useParams} from 'react-router-dom';
+import {useParams, useNavigate} from 'react-router-dom';
 
 const UpdateProduct = () => {
   const [name, setName] = useState("");
@@ -9,6 +9,7 @@ const UpdateProduct = () => {
   const [error, setError]=useState(false);
 
   const params=useParams();
+  const navigate=useNavigate();
 
   useEffect(()=>{
     
@@ -19,13 +20,29 @@ const UpdateProduct = () => {
   const getProductDetail=async ()=>{
      console.log(params);
 
-    let product=await fetch(`http://localhost:5000/product/${params.id}`);
-    
+    let result=await fetch(`http://localhost:5000/update/${params.id}`);
+    result= await result.json();
+    console.log(result);
+    setName(result.name);
+    setPrice(result.price);
+    setCategory(result.category);
+    setCompany(result.company);
 
   }
 
   const updateProductHandle=async ()=>{
     console.log(name,price,category,company);
+    let result=await fetch(`http://localhost:5000/update/${params.id}`,{
+      method:'Put',
+      body:JSON.stringify({name,price,category,company}),
+      headers:{
+        'Content-Type':"application/json"
+      }
+    });
+    result=await result.json();
+    console.log(result);
+    navigate('/');
+
     
   }
 
