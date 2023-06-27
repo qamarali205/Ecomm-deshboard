@@ -75,7 +75,14 @@
   margin: 0;
 }
 
+.searchProduct{
+  width: 400px;
+  margin: 20px;
+  height: 40px;
+  border:1px solid skyblue;
+  padding-left: 20px;
 
+}
 
 /* Media Query */
 
