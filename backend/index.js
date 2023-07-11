@@ -4,6 +4,9 @@ require("./db/config");
 const User = require("./db/User");
 const Product = require("./db/Product");
 
+const Jwt=require('jsonwebtoken');
+const jwtKey='e-com';
+
 const app = express();
 
 app.use(express.json());
@@ -11,14 +14,19 @@ app.use(express.json());
 app.use(cors());
 
 //sign up api
-app.post("/signup", async (req, res) => {
+app.post("/signup", verifyToken, async (req, res) => {
   try {
     let user = new User(req.body);
     //data insert in database
     let result = await user.save();
     // result.result.toObject();
     // delete result.password;
-    res.send(result);
+    Jwt.sign({result}, jwtKey, {expiresIn:"30d"},(err, token)=>{
+      if(err){
+        res.send({ result: "Somthing went wrong, Please try again" });
+      }
+      res.send({result ,auth:token});          
+    })
     // console.log(req.body);
   } catch (error) {
     res.send({ error: "Record Not Saved" });
@@ -27,13 +35,19 @@ app.post("/signup", async (req, res) => {
 
 // login api
 
-app.post("/login", async (req, res) => {
+app.post("/login", verifyToken, async (req, res) => {
   // res.send(req.body);
   try {
     if (req.body.password && req.body.email) {
       let user = await User.findOne(req.body).select("-password");
       if (user) {
-        res.send(user);
+        Jwt.sign({user},jwtToken, {expiresIn:"2h"},(err, token)=>{
+          if(err){
+            res.send({ result: "Somthing went wrong, Please try again" });
+          }
+          res.send({user ,auth:token});          
+        })
+        
       } else {
         res.send({ result: "No User Found" });
       }
@@ -46,7 +60,7 @@ app.post("/login", async (req, res) => {
 });
 
 // add product api
-app.post("/add-product", async (req, res) => {
+app.post("/add-product", verifyToken, async (req, res) => {
   try {
     let product = new Product(req.body);
     let result = await product.save();
@@ -57,7 +71,7 @@ app.post("/add-product", async (req, res) => {
 });
 
 // all proudct get api
-app.get("/products", async (req, res) => {
+app.get("/products", verifyToken, async (req, res) => {
   try {
     let product = await Product.find();
     if (product.length > 0) {
@@ -71,7 +85,7 @@ app.get("/products", async (req, res) => {
 });
 
 //delete product api
-app.delete("/product/:id", async (req, res) => {
+app.delete("/product/:id", verifyToken, async (req, res) => {
   try {
     const result = await Product.deleteOne({ _id: req.params.id });
     res.send(result);
@@ -82,7 +96,7 @@ app.delete("/product/:id", async (req, res) => {
 
 // get single product api
 
-app.get("/update/:id", async (req, res) => {
+app.get("/update/:id", verifyToken, async (req, res) => {
   try {
     let result = await Product.findOne({ _id: req.params.id });
     res.send(result);
@@ -109,7 +123,7 @@ app.put("/update/:id", async (req, res) => {
 
 //search product api
 
-app.get('/search/:key', async(req, res)=>{
+app.get('/search/:key', verifyToken, async(req, res)=>{
 
     try {
         let result=await Product.find({
@@ -127,6 +141,29 @@ app.get('/search/:key', async(req, res)=>{
         res.send({error:"Error"});
         
     }
-})
+});
+
+//verify token 
+
+function verifyToken(req, res, next){
+  let token=req.headers['authorization'];
+  if(token){
+    token=token.split(' ')[1];
+    console.log("middleware called", token);
+
+    Jwt.verify(token, jwtKey, (err, valid) => {
+      if(err){
+        res.status(401).send("Please provide valid token");
+      }else{
+        next();
+      }
+    })
+  }else{
+    res.status(403).send("Please add token with headers");
+  }
+  
+  
+};
+
 
 app.listen(5000);
