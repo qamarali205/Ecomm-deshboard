@@ -36,7 +36,8 @@ const SignUP = () => {
     setEmail("");
     setPassword("");
     //user local storage for data store
-    localStorage.setItem("user", JSON.stringify(result));
+    localStorage.setItem("user", JSON.stringify(result.result));
+    localStorage.setItem("token", JSON.stringify(result.auth));
     if (result) {
       navigate("/");
     }
