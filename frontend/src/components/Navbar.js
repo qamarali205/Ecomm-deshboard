@@ -13,7 +13,7 @@ const Navbar=()=>{
     }
 
     return(
-        <div>
+        <div className="navNar">
             <img
              alt="logo"
              className="nav-logo"

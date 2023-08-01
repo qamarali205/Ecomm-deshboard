@@ -5,6 +5,7 @@ const SignUP = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [error, setError]=useState(false);
   const navigate = useNavigate();
 
@@ -17,30 +18,39 @@ const SignUP = () => {
 
   const collectData = async () => {
     // e.preventDefault();
-    if(!email || !name || !password){
+    if(!email || !name || !password || !imageFile){
       setError(true);
       return false;
     }else{
 
     console.log(email, name, password);
-    let result = await fetch("http://localhost:5000/signup", {
-      method: "post",
-      body: JSON.stringify({ name, email, password }),
-      headers: {
-        "content-type": "application/json",
-      },
-    });
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("image", imageFile);
+
+   
+    try {
+      let result = await fetch("http://localhost:5000/signup", {
+        method: "post",
+        body: formData,
+      });
     result = await result.json();
     console.log(result);
     setName("");
     setEmail("");
     setPassword("");
+    setImageFile("");
     //user local storage for data store
     localStorage.setItem("user", JSON.stringify(result.result));
     localStorage.setItem("token", JSON.stringify(result.auth));
     if (result) {
       navigate("/");
     }
+  } catch (error) {
+    console.error("Error while uploading data:", error);
+  }
   }
   };
   return (
@@ -70,9 +80,22 @@ const SignUP = () => {
         placeholder="Enter Password"
       />
       {error && !password && <span className="error">Enter valid password</span>}
+      <input
+        className="inputBox"
+        type="file"
+        accept="image/*"
+        onChange={(e) => setImageFile(e.target.files[0])}
+      />
+      {error && !imageFile && <span className="error">Upload Image</span>}
       <button onClick={collectData} type="button" id="signupBtn">
         Sign UP
       </button>
+     
+    
+    
+   
+    
+    
     </div>
   );
 };
