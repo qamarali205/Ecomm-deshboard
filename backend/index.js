@@ -3,7 +3,9 @@ const cors = require("cors");
 require("./db/config");
 const User = require("./db/User");
 const Product = require("./db/Product");
-
+const multer=require('multer');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary')
 const Jwt=require('jsonwebtoken');
 const jwtKey='e-com';
 
@@ -13,35 +15,93 @@ app.use(express.json());
 
 app.use(cors());
 
-//sign up api
-app.post("/signup", verifyToken, async (req, res) => {
+cloudinary.config({ 
+  cloud_name: 'dvlbmm8sd', 
+  api_key: '865539467454389', 
+  api_secret: 'Fbt0liN6xs9yaKoq6k6kzKs9RMQ' 
+});
+
+// Upload file to Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads', // The folder name in your Cloudinary account to store the images
+    format: async (req, file) => 'jpg', // Set the desired image format
+    public_id: (req, file) => 'image-' + Date.now(), // Generate a unique public ID for each image
+  },
+});
+
+const upload = multer({ storage: storage }).single("image");
+
+//upload file
+// const upload = multer({
+//   storage: multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, "uploads");
+//     },
+//     filename: function (req, file, cb) {
+//       cb(null, file.fieldname + '-' + Date.now() + '.jpg');
+//     },
+//   }),
+// }).single("image"); // Use "image" as the field name for the uploaded file
+
+app.post("/signup", upload, async (req, res) => {
   try {
-    let user = new User(req.body);
-    //data insert in database
+    // Extract the image path from the request
+    const imagePath = req.file ? req.file.path : '';
+
+    // Create a new user object with image path included
+    let user = new User({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      image: imagePath, // Save the image path in the 'image' field
+    });
+
+    // Data insert in the database
     let result = await user.save();
-    // result.result.toObject();
-    // delete result.password;
-    Jwt.sign({result}, jwtKey, {expiresIn:"30d"},(err, token)=>{
-      if(err){
-        res.send({ result: "Somthing went wrong, Please try again" });
+
+    Jwt.sign({ result }, jwtKey, { expiresIn: "30d" }, (err, token) => {
+      if (err) {
+        res.send({ result: "Something went wrong, please try again" });
       }
-      res.send({result ,auth:token});          
-    })
-    // console.log(req.body);
+      res.send({ result, auth: token });
+    });
   } catch (error) {
     res.send({ error: "Record Not Saved" });
   }
 });
 
+
+//sign up api
+// app.post("/signup", async (req, res) => {
+//   try {
+//     let user = new User(req.body);
+//     //data insert in database
+//     let result = await user.save();
+//     // result.result.toObject();
+//     // delete result.password;
+//     Jwt.sign({result}, jwtKey, {expiresIn:"30d"},(err, token)=>{
+//       if(err){
+//         res.send({ result: "Somthing went wrong, Please try again" });
+//       }
+//       res.send({result ,auth:token});          
+//     })
+//     // console.log(req.body);
+//   } catch (error) {
+//     res.send({ error: "Record Not Saved" });
+//   }
+// });
+
 // login api
 
-app.post("/login", verifyToken, async (req, res) => {
+app.post("/login", async (req, res) => {
   // res.send(req.body);
   try {
     if (req.body.password && req.body.email) {
       let user = await User.findOne(req.body).select("-password");
       if (user) {
-        Jwt.sign({user},jwtToken, {expiresIn:"2h"},(err, token)=>{
+        Jwt.sign({user},jwtKey, {expiresIn:"30d"},(err, token)=>{
           if(err){
             res.send({ result: "Somthing went wrong, Please try again" });
           }
