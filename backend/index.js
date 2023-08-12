@@ -5,7 +5,7 @@ const User = require("./db/User");
 const Product = require("./db/Product");
 const multer=require('multer');
 const { v2: cloudinary } = require('cloudinary');
-const { CloudinaryStorage } = require('multer-storage-cloudinary')
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const Jwt=require('jsonwebtoken');
 const jwtKey='e-com';
 
@@ -101,7 +101,7 @@ app.post("/login", async (req, res) => {
     if (req.body.password && req.body.email) {
       let user = await User.findOne(req.body).select("-password");
       if (user) {
-        Jwt.sign({user},jwtKey, {expiresIn:"30d"},(err, token)=>{
+        Jwt.sign({user},jwtKey, {expiresIn:"365d"},(err, token)=>{
           if(err){
             res.send({ result: "Somthing went wrong, Please try again" });
           }
