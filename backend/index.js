@@ -203,6 +203,30 @@ app.get('/search/:key', verifyToken, async(req, res)=>{
     }
 });
 
+// search product by many keys
+// app.get('/search/:key', verifyToken, async (req, res) => {
+//   try {
+//       const key = req.params.key;
+//       const searchTerms = key.split(' ');
+
+//       const query = {
+//           $or: [
+//               { name: { $regex: searchTerms.join('|'), $options: 'i' } },
+//               { company: { $regex: searchTerms.join('|'), $options: 'i' } },
+//               { category: { $regex: searchTerms.join('|'), $options: 'i' } },
+//               { price: { $regex: searchTerms.join('|'), $options: 'i' } }
+//           ]
+//       };
+
+//       const result = await Product.find(query);
+//       res.send(result);
+//   } catch (error) {
+//       res.send({ error: "Error" });
+//   }
+// });
+
+
+
 //verify token 
 
 function verifyToken(req, res, next){
